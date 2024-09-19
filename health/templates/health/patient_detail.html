@@ -1,37 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ patient.user.username }}'s Details</title>
-</head>
-<body>
-    <h1>{{ patient.user.username }}'s Details</h1>
+{% extends "health/base.html" %}
 
-    <h2>Basic Information</h2>
-    <p>Age: {{ patient.age }}</p>
-    <p>Gender: {{ patient.gender }}</p>
-    <p>Address: {{ patient.address }}</p>
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <h1>{{ patient.user.username }}'s Details</h1>
 
-    <h2>Medical History</h2>
-    <p>{{ patient.medical_history }}</p>
+        <!-- Profile Image Section -->
+        {% if patient.profile_image %}
+        <div class="my-3">
+            <img src="{{ patient.profile_image.url }}" class="rounded-circle" alt="Profile Image" width="150" height="150">
+        </div>
+        {% endif %}
+    </div>
 
-    <h2>Health Records</h2>
-    <ul>
-        {% for record in health_records %}
-        <li>{{ record.record_date }} - {{ record.symptoms }} - {{ record.diagnosis }}</li>
-        {% empty %}
-        <li>No health records found.</li>
-        {% endfor %}
-    </ul>
+    <!-- Basic Information Section -->
+    <div class="card my-4">
+        <div class="card-body">
+            <h2 class="card-title">Basic Information</h2>
+            <p><strong>Age:</strong> {{ patient.age }}</p>
+            <p><strong>Gender:</strong> {{ patient.gender }}</p>
+            <p><strong>Address:</strong> {{ patient.address }}</p>
+        </div>
+    </div>
 
-    <h2>Medical Tests</h2>
-    <ul>
-        {% for test in medical_tests %}
-        <li>{{ test.test_date }} - {{ test.test_name }}: {{ test.test_result }}</li>
-        {% empty %}
-        <li>No medical tests found.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+    <!-- Medical History Section -->
+    <div class="card my-4">
+        <div class="card-body">
+            <h2 class="card-title">Medical History</h2>
+            <p>{{ patient.medical_history }}</p>
+        </div>
+    </div>
+
+    <!-- Health Records Section -->
+    <div class="card my-4">
+        <div class="card-body">
+            <h2 class="card-title">Health Records</h2>
+            <ul class="list-group list-group-flush">
+                {% for record in health_records %}
+                <li class="list-group-item">{{ record.record_date }} - {{ record.symptoms }} - {{ record.diagnosis }}</li>
+                {% empty %}
+                <li class="list-group-item">No health records found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Medical Tests Section -->
+    <div class="card my-4">
+        <div class="card-body">
+            <h2 class="card-title">Medical Tests</h2>
+            <ul class="list-group list-group-flush">
+                {% for test in medical_tests %}
+                <li class="list-group-item">{{ test.test_date }} - {{ test.test_name }}: {{ test.test_result }}</li>
+                {% empty %}
+                <li class="list-group-item">No medical tests found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

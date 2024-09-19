@@ -11,34 +11,49 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 
+from django.shortcuts import render, redirect, get_object_or_404
 
 @login_required
 def add_doctor_profile(request):
+    # Check if the doctor profile already exists
+    try:
+        doctor_profile = request.user.doctorprofile
+    except DoctorProfile.DoesNotExist:
+        doctor_profile = None
+
     if request.method == 'POST':
-        form = DoctorProfileForm(request.POST)
+        form = DoctorProfileForm(request.POST, instance=doctor_profile)
         if form.is_valid():
             doctor_profile = form.save(commit=False)
             doctor_profile.user = request.user  # Link to the logged-in user
             doctor_profile.save()
             return redirect('doctor_dashboard')  # Redirect after saving
     else:
-        form = DoctorProfileForm()
-    
-    return render(request, 'health/add_doctor.html', {'form': form})
+        form = DoctorProfileForm(instance=doctor_profile)
+
+    return render(request, 'health/add_doctor.html', {'form': form, 'title': 'Add or Update Doctor Profile'})
+
 
 @login_required
 def add_patient_profile(request):
+    # Check if the patient profile already exists
+    try:
+        patient_profile = request.user.patientprofile
+    except PatientProfile.DoesNotExist:
+        patient_profile = None
+
     if request.method == 'POST':
-        form = PatientProfileForm(request.POST)
+        form = PatientProfileForm(request.POST, instance=patient_profile)
         if form.is_valid():
             patient_profile = form.save(commit=False)
             patient_profile.user = request.user  # Link to the logged-in user
             patient_profile.save()
             return redirect('patient_dashboard')  # Redirect after saving
     else:
-        form = PatientProfileForm()
+        form = PatientProfileForm(instance=patient_profile)
 
-    return render(request, 'health/add_patient.html', {'form': form})
+    return render(request, 'health/add_patient.html', {'form': form, 'title': 'Add or Update Patient Profile'})
+
 
 @login_required
 def doctor_dashboard(request):
@@ -127,7 +142,7 @@ def describe_problem(request):
 
     if problem_description:
         # Create an instance of AIModel with the problem description
-        ai_model = AIModel(problem_description=problem_description)
+        ai_model = AIModel(user=request.user, problem_description=problem_description)
         ai_model.save()
         
         # Process the problem through the AI model to generate recommendations
@@ -156,7 +171,7 @@ def schedule_appointment(request):
     else:
         form = AppointmentForm()
     
-    return render(request, 'schedule_appointment.html', {'form': form})
+    return render(request, 'health/schedule_appointment.html', {'form': form})
 
 def home(request):
     return render(request, 'health/home.html')
