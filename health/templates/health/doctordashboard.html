@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, Dr. {{ doctor.user.username }}</h1>
+
+    <!-- Appointments Section -->
+    <h2>Your Appointments</h2>
+    <ul>
+        {% for appointment in appointments %}
+        <li>{{ appointment.date }} - {{ appointment.patient.user.username }}</li>
+        {% empty %}
+        <li>No appointments found.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Patients Section -->
+    <h2>Your Patients</h2>
+    <ul>
+        {% for patient in patients %}
+        <li>
+            <a href="{% url 'patient_detail' patient.id %}">{{ patient.user.username }}</a>
+        </li>
+        {% empty %}
+        <li>No patients found.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Upload Health Record Form -->
+    <h2>Upload Health Record</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload Record</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Health Record</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Upload Health Record</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_symptoms">Symptoms:</label>
+                {{ form.symptoms }}
+            </div>
+            <div class="form-group">
+                <label for="id_diagnosis">Diagnosis:</label>
+                {{ form.diagnosis }}
+            </div>
+            <div class="form-group">
+                <label for="id_prescription">Prescription:</label>
+                {{ form.prescription }}
+            </div>
+            <div class="form-group">
+                <label for="id_doctor">Doctor:</label>
+                {{ form.doctor }}
+            </div>
+            <button type="submit" class="btn btn-primary">Upload Record</button>
+        </form>
+    </div>
+</body>
+</html>

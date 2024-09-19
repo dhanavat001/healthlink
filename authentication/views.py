@@ -50,6 +50,7 @@ def register(request):
         user = User.objects.create_user(username=username, email=email)
         user.set_password(password)
         user.save()
+        return redirect('login')
 
     return render(request, 'authentication/register.html')
 

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome, {{ user.username }}</h1>
+
+        <!-- Medical Records Section -->
+        <section>
+            <h2>Medical Records</h2>
+            <ul>
+                {% for record in medical_records %}
+                    <li>{{ record.date }} - {{ record.description }}</li>
+                {% endfor %}
+            </ul>
+            <a class="button" href="{% url 'upload_record' %}">Upload New Record</a>
+        </section>
+
+        <!-- Insights Section -->
+        <section>
+            <h2>Health Insights</h2>
+            <ul>
+                {% for insight in insights %}
+                    <li>{{ insight.date }} - {{ insight.summary }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Appointments Section -->
+        <section>
+            <h2>Appointments</h2>
+            <ul>
+                {% for appointment in appointments %}
+                    <li>{{ appointment.date }} with Dr. {{ appointment.doctor }}</li>
+                {% endfor %}
+            </ul>
+            <a class="button" href="{% url 'schedule_appointment' %}">Schedule New Appointment</a>
+        </section>
+
+        <!-- Messages Section
+        <section>
+            <h2>Messages</h2>
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message.sender }}: {{ message.content|truncatewords:10 }}</li>
+                {% endfor %}
+            </ul>
+        </section> -->
+
+        <!-- Describe Your Problem Section -->
+        <section>
+            <h2>Describe Your Problem</h2>
+            <form action="{% url 'describe_problem' %}" method="POST">
+                {% csrf_token %}
+                <textarea name="problem_description" rows="4" cols="50" placeholder="Describe your problem here..."></textarea>
+                <br>
+                <button type="submit" class="button">Submit Problem</button>
+            </form>
+        </section>
+
+    </div>
+</body>
+</html>
+
