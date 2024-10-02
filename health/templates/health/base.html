@@ -273,23 +273,36 @@
 <body class="bg-light">
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 
-    <!-- Navigation Bar -->
-    <nav>
-        <div class="container">
-            <h1 class="logo"><a href="#">HealthLink</a></h1>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#doctors">Doctors</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="{% url 'add_doctor_profile' %}" class="button">Add Doctor Profile</a></li>
-                <li><a href="{% url 'add_patient_profile' %}" class="button">Add Patient Profile</a></li>
-            </ul>
-        </div>
-    </nav>
+<!-- Navigation Bar -->
+<nav>
+    <div class="container">
+        <h1 class="logo"><a href="#">HealthLink</a></h1>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#doctors">Doctors</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="{% url 'add_doctor_profile' %}" class="button">Add Doctor Profile</a></li>
+            <li><a href="{% url 'add_patient_profile' %}" class="button">Add Patient Profile</a></li>
+            
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'logout' %}" class="button">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'authentication:login' %}" class="button">Login</a></li>
+                <li><a href="{% url 'authentication:register' %}" class="button">Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
 {%block content%}
 
 {%endblock content%}
-    
+        <!-- Footer Section -->
+        <footer>
+            <div class="container">
+                <p>&copy; 2024 HealthLink. All Rights Reserved.</p>
+            </div>
+        </footer>
 </body>
 </html>

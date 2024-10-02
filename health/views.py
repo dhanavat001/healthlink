@@ -159,7 +159,7 @@ def describe_problem(request):
         return redirect('patient_dashboard')
 
 
-@login_required
+@login_required(login_url='authentication:login')
 def schedule_appointment(request):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)

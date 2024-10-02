@@ -6,7 +6,6 @@ from .utils import generate_token, send_activation_email, activate_user
 from django.contrib.auth import authenticate, login, logout
 
 
-
 def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -50,7 +49,7 @@ def register(request):
         user = User.objects.create_user(username=username, email=email)
         user.set_password(password)
         user.save()
-        return redirect('login')
+        return redirect('login') 
 
     return render(request, 'authentication/register.html')
 
@@ -61,4 +60,3 @@ def logout_view(request):
 
 def health_home(request):
     return render(request, 'health/home.html')
-
