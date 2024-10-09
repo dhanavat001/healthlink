@@ -3,23 +3,21 @@
 {% block content %}
 <div class="container mt-5">
     <div class="text-center">
-        <h1>Welcome, Dr. {{ doctor.user.username }}</h1>
-
+        <h1>Welcome, <a href="{%url 'add_doctor_profile'%}">Dr. {{ doctor.user.username }}</a></h1>
 
         <!-- Profile Image Section -->
         {% if doctor.profile_image %}
         <div class="my-3">
-            <img src="{{ doctor.profile_image.url }}" class="rounded-circle" alt="Profile Image" width="150" height="150">
-            {{doctor.profile_image.url}}
+            <img src="{{ doctor.profile_image.url }}" class="rounded-circle small-profile-img" alt="Profile Image">
         </div>
-        {% endif %}
+    {% endif %}
+    
     </div>
 
-
-    <!-- Appointments Section -->
-    <div class="card my-4">
-        <div class="card-body">
-            <h2 class="card-title">Your Appointments</h2>
+    <div class="dashboard-grid">
+        <!-- Appointments Section -->
+        <section class="dashboard-section">
+            <h2>Your Appointments</h2>
             <ul class="list-group list-group-flush">
                 {% for appointment in appointments %}
                 <li class="list-group-item">{{ appointment.date }} {{ appointment.time }} - {{appointment.patient}}: {{appointment.notes}}</li>
@@ -27,13 +25,11 @@
                 <li class="list-group-item">No appointments found.</li>
                 {% endfor %}
             </ul>
-        </div>
-    </div>
+        </section>
 
-    <!-- Patients Section -->
-    <div class="card my-4">
-        <div class="card-body">
-            <h2 class="card-title">Your Patients</h2>
+        <!-- Patients Section -->
+        <section class="dashboard-section">
+            <h2>Your Patients</h2>
             <ul class="list-group list-group-flush">
                 {% for patient in patients %}
                 <li class="list-group-item">
@@ -43,19 +39,17 @@
                 <li class="list-group-item">No patients found.</li>
                 {% endfor %}
             </ul>
-        </div>
-    </div>
+        </section>
 
-    <!-- Upload Health Record Form -->
-    <div class="card my-4">
-        <div class="card-body">
-            <h2 class="card-title">Upload Health Record</h2>
+        <!-- Upload Health Record Section -->
+        <section class="dashboard-section">
+            <h2>Upload Health Record</h2>
             <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit" class="btn btn-primary mt-2">Upload Record</button>
             </form>
-        </div>
+        </section>
     </div>
 </div>
 {% endblock %}

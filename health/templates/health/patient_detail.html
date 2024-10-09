@@ -45,6 +45,23 @@
         </div>
     </div>
 
+    <!-- AI Recommendations -->
+    <div class="card my-4">
+        <div class="card-body">
+            <h2 class="card-title">AI Insights</h2>
+            <ul class="list-group list-group-flush">
+                {% for prediction in ai_predictions %}
+                <li class="list-group-item">{{ prediction.problem_description }}</li>
+                <li class="list-group-item">{{ prediction.recommended_doctor }}</li>
+                <li class="list-group-item">{{ prediction.prognosis }}</li>
+                <li class="list-group-item">{{ prediction.ai_insights }}</li>
+                {% empty %}
+                <li class="list-group-item">No AI insights found.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
     <!-- Medical Tests Section -->
     <div class="card my-4">
         <div class="card-body">

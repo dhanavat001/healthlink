@@ -1,69 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Dashboard</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome, {{ user.username }}</h1>
+{% extends 'health/base.html' %}
 
+{% block content %}
+<div class="container-patient">
+    <h1>Welcome, <a href="{%url 'add_patient_profile'%}">{{ user.username }}</a></h1>
+    
+    {% if patient.profile_image %}
+    <div class="d-flex justify-content-center my-3">
+        <img src="{{ patient.profile_image.url }}" class="rounded-circle small-profile-img" alt="Profile Image">
+    </div>
+    {% endif %}
+
+    <div class="dashboard-grid">
         <!-- Medical Records Section -->
-        <section>
+        <section class="dashboard-section medical-records">
             <h2>Medical Records</h2>
             <ul>
                 {% for record in medical_records %}
-                    <li>{{ record.date }} - {{ record.description }}</li>
+                    <li>{{ record.record_date }} - Symptoms: {{ record.symptoms }}</li>
+                    <li>Diagnosis: {{ record.diagnosis }} - Prescription: {{ record.prescription }}</li>
                 {% endfor %}
             </ul>
-            <a class="button" href="{% url 'upload_record' %}">Upload New Record</a>
         </section>
 
-        <!-- Insights Section -->
-        <section>
+        <!-- Health Insights Section -->
+        <section class="dashboard-section health-insights">
             <h2>Health Insights</h2>
             <ul>
-                {% for insight in insights %}
-                    <li>{{ insight.date }} - {{ insight.summary }}</li>
+                {% for insight in ai_predictions %}
+                    <li>{{ insight.problem_description }} - {{ insight.recommended_doctor }}</li>
+                    <p>{{insight.ai_insights}}</p>
                 {% endfor %}
             </ul>
         </section>
 
         <!-- Appointments Section -->
-        <section>
+        <section class="dashboard-section appointments">
             <h2>Appointments</h2>
             <ul>
                 {% for appointment in appointments %}
                     <li>{{ appointment.date }} with Dr. {{ appointment.doctor }}</li>
                 {% endfor %}
             </ul>
-            <a class="button" href="{% url 'schedule_appointment' %}">Schedule New Appointment</a>
+            <a class="button-patient" href="{% url 'schedule_appointment' %}">Schedule New Appointment</a>
         </section>
 
-        <!-- Messages Section
-        <section>
-            <h2>Messages</h2>
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message.sender }}: {{ message.content|truncatewords:10 }}</li>
-                {% endfor %}
-            </ul>
-        </section> -->
-
         <!-- Describe Your Problem Section -->
-        <section>
+        <section class="dashboard-section describe-problem">
             <h2>Describe Your Problem</h2>
             <form action="{% url 'describe_problem' %}" method="POST">
                 {% csrf_token %}
                 <textarea name="problem_description" rows="4" cols="50" placeholder="Describe your problem here..."></textarea>
                 <br>
-                <button type="submit" class="button">Submit Problem</button>
+                <button type="submit" class="button-patient">Submit Problem</button>
             </form>
         </section>
-
     </div>
-</body>
-</html>
-
+</div>
+{% endblock content %}

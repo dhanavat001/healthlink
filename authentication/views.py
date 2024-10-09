@@ -16,7 +16,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'Welcome, {user.username}!')
-            return redirect('health-home')
+            return redirect('authentication:health-home')
         else:
             messages.error(request, 'Invalid username or password')
 
@@ -49,7 +49,7 @@ def register(request):
         user = User.objects.create_user(username=username, email=email)
         user.set_password(password)
         user.save()
-        return redirect('login') 
+        return redirect('authentication:login') 
 
     return render(request, 'authentication/register.html')
 

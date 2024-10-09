@@ -1,17 +1,37 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import AppointmentForm
-from django.contrib.auth.decorators import login_required
+from .forms import AppointmentForm, MedicalTestForm
 from .models import Appointment, AIModel, HealthRecord, PatientProfile, DoctorProfile, MedicalTest
 from django.shortcuts import render, redirect 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.http import HttpResponseForbidden
 from .forms import HealthRecordForm, DoctorProfileForm, PatientProfileForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
-
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
+from AIModels.Django_Integration.disease_integration import predict_disease, predict_doctor
+from AIModels.Gemini.insights import generate_insights
+
+
+def check_user_profile(request):
+    user = request.user
+
+    # Check if the user is authenticated
+    if not user.is_authenticated:
+        return HttpResponse("<p>Please login to access this feature.</p>")
+
+    # Check if user has a PatientProfile or DoctorProfile
+    has_patient_profile = PatientProfile.objects.filter(user=user).exists()
+    has_doctor_profile = DoctorProfile.objects.filter(user=user).exists()
+
+    if has_patient_profile or has_doctor_profile:
+        return HttpResponse("")  # Return an empty response if they have a profile
+
+    # If neither profile exists, return a dialog with options to register
+    return render(request, "health/profile_check_dialog.html")
+
 
 @login_required
 def add_doctor_profile(request):
@@ -22,7 +42,7 @@ def add_doctor_profile(request):
         doctor_profile = None
 
     if request.method == 'POST':
-        form = DoctorProfileForm(request.POST, instance=doctor_profile)
+        form = DoctorProfileForm(request.POST, request.FILES, instance=doctor_profile)
         if form.is_valid():
             doctor_profile = form.save(commit=False)
             doctor_profile.user = request.user  # Link to the logged-in user
@@ -43,7 +63,7 @@ def add_patient_profile(request):
         patient_profile = None
 
     if request.method == 'POST':
-        form = PatientProfileForm(request.POST, instance=patient_profile)
+        form = PatientProfileForm(request.POST, request.FILES, instance=patient_profile)
         if form.is_valid():
             patient_profile = form.save(commit=False)
             patient_profile.user = request.user  # Link to the logged-in user
@@ -61,7 +81,9 @@ def doctor_dashboard(request):
 
     # Fetch doctor's appointments and patients
     appointments = Appointment.objects.filter(doctor=doctor)
+    # Fetch patients with health records and also those with appointments with the doctor
     patients = PatientProfile.objects.filter(health_records__doctor=doctor).distinct()
+
 
     if request.method == 'POST':
         form = HealthRecordForm(request.POST)
@@ -81,16 +103,30 @@ def doctor_dashboard(request):
     }
     return render(request, 'health/doctordashboard.html', context)
 
+
+def add_medical_test(request):
+    if request.method == 'POST':
+        form = MedicalTestForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the form data to the database
+            return redirect('doctor_dashboard')  
+    else:
+        form = MedicalTestForm()
+    
+    return render(request, 'health/add_medicaltest.html', {'form': form})
+
 @login_required
 def patient_detail(request, patient_id):
     patient = get_object_or_404(PatientProfile, id=patient_id)
     health_records = HealthRecord.objects.filter(patient=patient)
     medical_tests = MedicalTest.objects.filter(health_record__patient=patient)
+    ai_predictions = AIModel.objects.filter(patient=patient).order_by('-id')[:2]
 
     context = {
         'patient': patient,
         'health_records': health_records,
-        'medical_tests': medical_tests
+        'medical_tests': medical_tests,
+        'ai_predictions': ai_predictions
     }
     return render(request, 'health/patient_detail.html', context)
 
@@ -118,45 +154,51 @@ def upload_record(request):
 def patient_dashboard(request):
     # Fetch data from models for the logged-in patient
     user = request.user
-    medical_records = HealthRecord.objects.filter(patient=user)
-    insights = AIModel.objects.filter(patient=user)
+    patient = PatientProfile.objects.get(user=user)
+    medical_records = HealthRecord.objects.filter(patient=patient)
     appointments = Appointment.objects.filter(patient=user)
+    ai_predictions = AIModel.objects.filter(patient=patient).order_by('-id')[:2]
     # messages = Message.objects.filter(receiver=user)
     
     # Context to pass to template
     context = {
+        'patient': patient,
         'medical_records': medical_records,
-        'insights': insights,
         'appointments': appointments,
+        'ai_predictions': ai_predictions,
         # 'messages': messages,
     }
-    
     return render(request, 'health/patientdashboard.html', context)
-
 
 
 @require_POST
 def describe_problem(request):
     # Get the problem description from the form
+    user = request.user
+    patient = PatientProfile.objects.get(user=user)
+    medical_history = patient.medical_history
     problem_description = request.POST.get('problem_description')
+    diseases = predict_disease(problem_description)
+    doctors = predict_doctor(problem_description)
+    try:
+        insights = generate_insights(medical_history=medical_history, user_input=problem_description)
+    except:
+        insights = f"Find these doctors: {doctors}"
+    print(diseases)
+    print(doctors)
+    print(insights)
 
-    if problem_description:
-        # Create an instance of AIModel with the problem description
-        ai_model = AIModel(user=request.user, problem_description=problem_description)
-        ai_model.save()
-        
-        # Process the problem through the AI model to generate recommendations
-        ai_model.process_problem()
+    # Create an instance of AIModel with the problem description
+    ai_model = AIModel(patient=patient, problem_description=problem_description, prognosis=diseases, recommended_doctor=doctors, ai_insights=insights)
+    ai_model.save()
+    
 
-        # Show success message to the user
-        messages.success(request, 'Your problem has been submitted and processed by AI.')
 
-        # Redirect to the dashboard or any other page
-        return redirect('patient_dashboard')
-    else:
-        # Show error message if no description was provided
-        messages.error(request, 'Please describe your problem.')
-        return redirect('patient_dashboard')
+    # Show success message to the user
+    messages.success(request, 'Your problem has been submitted and processed by AI.')
+
+    # Redirect to the dashboard or any other page
+    return redirect('patient_dashboard')
 
 
 @login_required(login_url='authentication:login')
@@ -173,5 +215,18 @@ def schedule_appointment(request):
     
     return render(request, 'health/schedule_appointment.html', {'form': form})
 
+def doctor_list(request):
+    # Get all doctor profiles from the database
+    doctors = DoctorProfile.objects.all()
+    
+    # Render the list in the template
+    return render(request, 'health/doctor_list.html', {'doctors': doctors})
+
 def home(request):
-    return render(request, 'health/home.html')
+    doctors = DoctorProfile.objects.all()
+    return render(request, 'health/home.html', {'doctors':doctors})
+
+@login_required(login_url='authentication:login')
+def logout_view(request):
+    logout(request)
+    return redirect('authentication:login')

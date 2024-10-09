@@ -1,0 +1,23 @@
+{% extends "health/base.html" %}
+{% load static %}
+
+{%block content%}
+<div class="container">
+    <h1>List of Doctors</h1>
+    {% for doctor in doctors %}
+    <div class="doctor-card">
+        {%if doctor.profile_image%}
+        <img src="{{ doctor.profile_image.url }}" alt="{{ doctor.user.username }}'s profile picture">
+        {%endif%}
+        <div class="doctor-details">
+            <p class="doctor-name">{{ doctor.user.username }}</p>
+            <p class="doctor-info">Specialization: {{ doctor.specialization }}</p>
+            <p class="doctor-info">License Number: {{ doctor.license_number }}</p>
+            <p class="doctor-info">Phone Number: {{ doctor.phone_number }}</p>
+            <p class="doctor-info">Age: {{ doctor.age }}</p>
+            <p class="doctor-info">Gender: {{ doctor.gender }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{%endblock content%}

@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule Appointment</title>
-</head>
-<body>
-    <div class="container">
-        <h2>Schedule a New Appointment</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Schedule Appointment</button>
-        </form>
+{% extends "health/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="text-center">
+            <h2 class="mb-4">Schedule a New Appointment</h2>
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.as_p|safe }}
+                </div>
+                <button type="submit" class="btn btn-primary">Schedule Appointment</button>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+{% endblock %}

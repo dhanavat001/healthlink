@@ -1,0 +1,12 @@
+{% extends "health/base.html" %}
+{% load static %}
+
+{%block content%}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }} 
+    <button type="submit" class="btn btn-primary">Submit Test</button>
+</form>
+
+{%endblock content%}
+
